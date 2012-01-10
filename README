@@ -30,3 +30,6 @@ as well as making exponential and ramping release models..
   The one with ex in the title means exponential rise and fall of transmitter.
   Ramp means ramping up and down of transmitter level.
 
+20120110 release.mod (not used in default model) updated to use
+derivimplicit in place of euler.
+
