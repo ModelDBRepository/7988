@@ -1,0 +1,55 @@
+load_file("nrngui.hoc")
+// The hoc files as received by the authors pop up some graphs so that each
+// can be run separately.
+// This file manages its own gui so the following declaration is introduced
+// to allow the orginal files to pop up the graphs if those are run standalone.
+mosinit = 1
+// Modifications to  ndma2B.hoc were made to check if the above is
+// declared. If so then gui statements are not executed.
+
+// Since nmda2A.hoc, nmda2Aex.hoc, and nmda2B.hoc differ only slightly it is
+// sufficient to load just one and functionally switch between them with
+// fairly simple procedure calls.
+ismenu = 1
+load_file("nmda2B.hoc")
+
+proc nrn2a_model() { //copied from nmda2A.hoc
+	Rb_NMDA5      = 5e-3    //    (/uM /ms)       : binding 
+	Ru_NMDA5      = 0.025  //     (/ms)   : unbinding
+	Rd_NMDA5      = 0.002   //    (/ms)   : desensitization
+	Rr_NMDA5      = 0.001   //    (/ms)   : resensitization 
+	Ro_NMDA5      = 0.15   //     (/ms)   : opening
+	Rc_NMDA5      = 0.15   //     (/ms)   : closing
+}
+proc nrn2b_model() { //copied from nmda2B.hoc
+	Rb_NMDA5      = 2e-3    //    (/uM /ms)       : binding 
+	Ru_NMDA5      = 0.005  //     (/ms)   : unbinding
+	Rd_NMDA5      = 0.004   //    (/ms)   : desensitization
+	Rr_NMDA5      = 0.006   //    (/ms)   : resensitization 
+	Ro_NMDA5      = 0.10   //     (/ms)   : opening
+	Rc_NMDA5      = 0.04   //     (/ms)   : closing
+}
+
+//following now in start.ses
+/*
+xpanel("Fig 3")
+xmenu("cmax")
+xbutton("1 uM", "PRE.cmax_glurel = 1e-3")
+xbutton("30 uM", "PRE.cmax_glurel = 30e-3")
+xbutton("1000 uM", "PRE.cmax_glurel = 1000e-3")
+xmenu()
+xmenu("dur")
+xbutton("1 ms", "PRE.dur_glurel = 1")
+xbutton("20 ms", "PRE.dur_glurel = 20")
+xbutton("2 s", "PRE.dur_glurel = 2000")
+xmenu()
+xvalue("cmax", "PRE.cmax_glurel(.5)", 1)
+xvalue("dur", "PRE.dur_glurel(.5)", 1)
+xradiobutton("NR2A model", "nrn2a_model()")
+xradiobutton("NR2B model", "nrn2b_model()", 1)
+xpanel(400,300)
+//*/
+
+load_file("start.ses")
+
+run()

@@ -1,0 +1,32 @@
+Chen N, Ren J, Raymond LA, Murphy TH (2001) Changes in agonist concentration 
+dependence that are a function of duration of exposure suggest 
+N-methyl-D-aspartate receptor nonsaturation during synaptic stimulation. 
+Mol Pharmacol 59:212-9 
+
+The mosinit.hoc file constructs a graphical interface for
+simulation of the curves from Fig 3a.
+
+The model supports the hypothesis that the kinetics of NMDA receptors (for
+two different subunit compositions) delay the binding of glutamate so that
+at the time scale of synaptic events less glutamate is bound than would be 
+at the constant (equilibrium) glutamate concentration reported in the
+literature.  See above paper for more details and references.
+
+For more information on the model please contact Dr Tim Murphy.
+email address: thmurphy@interchange.ubc.ca
+
+These model files (except mosinit.hoc) were supplied by Dr. Tim H. Murphy
+A non-substantive change to IVndma5.mod (avoid "exit" call in favor of
+"hoc_execerror" in IVnmda5.mod) by Michael Hines allows the model to be
+run under mswin.
+
+Some comments from Dr. Murphy's with respect to the model files:
+... As we mentioned in the paper we adapted code previously
+written by others Mainen, Destexhe to produce the models, we did derive
+parameters specific for NR2A and NR2B and adjusted the rate const for 37 C
+as well as making exponential and ramping release models..
+  The files with temp in the name are at 37 C (rate const adjusted)
+  The hoc files with IV in the name are dose response curves.
+  The one with ex in the title means exponential rise and fall of transmitter.
+  Ramp means ramping up and down of transmitter level.
+

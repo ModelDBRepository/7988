@@ -1,0 +1,230 @@
+/*----------------------------------------------------------------------------
+
+	Detailed kinetic synapse mechanism
+	----------------------------------
+
+	Demo file to show the behavior of a synaptic currents mediated by
+	glutamate NMDA receptors, using a detailed kinetic model of these
+	receptors and a kinetic model for the release of transmitter.
+
+	Kinetic model from Clements & Westbrook, Neuron 7: 605, 1991.
+
+
+  See details in:
+
+  Destexhe, A., Mainen, Z.F. and Sejnowski, T.J.  Kinetic models of 
+  synaptic transmission.  In: Methods in Neuronal Modeling (2nd edition; 
+  edited by Koch, C. and Segev, I.), MIT press, Cambridge, 1996.
+
+
+  Written by Alain Destexhe, Laval University, 1995
+
+----------------------------------------------------------------------------*/
+
+
+
+//----------------------------------------------------------------------------
+//  load and define general graphical procedures
+//----------------------------------------------------------------------------
+
+xopen("$(NEURONHOME)/lib/hoc/stdrun.hoc")
+
+objectvar g[20]			// max 20 graphs
+ngraph = 0
+
+proc addgraph() { local ii	// define subroutine to add a new graph
+				// addgraph("variable", minvalue, maxvalue)
+	ngraph = ngraph+1
+	ii = ngraph-1
+	g[ii] = new Graph()
+	g[ii].size(0,tstop,$2,$3)
+	g[ii].xaxis()
+	g[ii].yaxis()
+	g[ii].addvar($s1,1,0)
+	g[ii].save_name("graphList[0].")
+	graphList[0].append(g[ii])
+}
+
+if(ismenu==0) {
+  nrnmainmenu()			// create main menu
+//  nrncontrolmenu()		// create control menu
+  ismenu=1
+}
+
+
+
+
+
+
+//----------------------------------------------------------------------------
+//  create compartments and insert passive properties
+//----------------------------------------------------------------------------
+
+create PRE,POST
+forall {
+  diam=10
+  L=10
+  insert pas
+  g_pas=1/5000
+  e_pas=v_init
+}
+
+
+
+//----------------------------------------------------------------------------
+//  insert presynaptic mechanisms
+//----------------------------------------------------------------------------
+
+access PRE		// insert Hodgk-Hux. Na+ and K+ currents for spikes
+
+
+insert relramp		// transmitter release
+
+
+
+//----------------------------------------------------------------------------
+//  insert postsynaptic mechansisms
+//----------------------------------------------------------------------------
+
+objectvar c
+c = new IVNMDA5()			// create synapse
+POST c.loc(0.5)				// assign postsynaptic compartment
+setpointer c.C, PRE.T_relramp(0.5)		// assign presynaptic compartment
+
+Erev_IVNMDA5	= 0	//	(mV)	reversal potential (E_K)
+mg_IVNMDA5	= 0	//	put in zero magnesium for the demo
+
+// parameters from Hessler Shirke & Malinow 1993
+Rb_IVNMDA5	= 0.02    //	(/uM /ms)	: binding 		
+Ru_IVNMDA5	= 0.1  //	(/ms)	: unbinding		
+Rd_IVNMDA5	= 0.004   //	(/ms)	: desensitization
+Rr_IVNMDA5	= 0.0064   //	(/ms)	: resensitization 
+Ro_IVNMDA5	= 0.32   //	(/ms)	: opening
+Rc_IVNMDA5	= 0.32  //	(/ms)	: closing
+c.gmax 	= 50	//	(pS)	maximum conductance
+
+
+
+
+//----------------------------------------------------------------------------
+//  add graphs
+//----------------------------------------------------------------------------
+
+//	addgraph("PRE.v(0.5)",-90,40)
+//	addgraph("PRE.T_relramp(0.5)",0,1.5)
+//	addgraph("c.inmda",-0.001, 0.0001)
+//	addgraph("POST.v(0.5)",v_init-2,v_init+4)
+
+
+//----------------------------------------------------------------------------
+//  general parameters
+//----------------------------------------------------------------------------
+
+//iterator case() {local j
+//		for j = $2, numarg()-1 {
+//			$&1 = $j
+//			iterator_statement
+//		}
+//}
+
+double con[13]
+con[0] = 0.00003
+con[1] = 0.0001
+con[2] = 0.0003
+con[3] = 0.001
+con[4] = 0.003
+con[5] = 0.01
+con[6] = 0.03
+con[7] = 0.1
+con[8] = 0.3
+con[9] = 1
+con[10] = 3
+con[11] = 10
+con[12] = 30
+
+double duration[3]
+duration[0] = 1
+duration[1] = 20
+duration[2] = 2000
+
+double ramp[3]
+ramp[0] = 0.2
+ramp[1] = 4
+ramp[2] = 4
+
+count = 0
+double x[3101/0.025]
+for jj = 0,2 {
+
+	dt = 0.025
+	ttstop = duration[jj] + 100
+	tstop = ttstop
+
+	runStopAt = ttstop
+	steps_per_ms = 1/dt
+	celsius = 36
+	v_init = -70
+
+	
+	for mm = 0,12 {
+		
+		c.gluc = con[mm]
+		c.w = 0
+		c.timer = ttstop
+		c.llabel = 0.0
+
+		access PRE
+		cmax_relramp = con[mm]
+		dur_relramp = duration[jj]
+		rampdur_relramp = ramp[jj]
+		
+		
+		finitialize()
+		wopen("current.dat")
+		
+		
+		while( t < tstop) {
+			fadvance()
+			
+       		fprint("%e \n", c.inmda)
+       	      
+		      if (c.llabel == 3.0) {
+				
+				wopen()
+				ropen("current.dat")
+				for (j = 0; j < t/dt; j = j +1) {
+					x[j] = 0.0
+				}
+				for (j=1; j<t/dt; j=j+1) {
+	
+			          x[j] = fscan()
+				    temp1 = 0.1 * c.inmda
+				    temp2 = 0.9 * c.inmda
+				    if((x[j]*1e10 <= temp1*1e10)&&(x[j-1]*1e10 >= temp1*1e10)) {
+						time10 = j*dt
+				    }
+				    if((x[j]*1e10 <= temp2*1e10)&&(x[j-1]*1e10 > temp2*1e10)) {
+						time90 = j*dt
+						print  time10, time90,x[j],temp2
+				    		break
+					}
+				    
+				}
+			      ropen()
+				risetime = time90 - time10
+				print cmax_relramp
+				print risetime
+
+				break
+			}
+
+		}
+	}
+}
+	
+
+
+
+			
+	
+	
