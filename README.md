@@ -25,6 +25,4 @@ Some comments from Dr. Murphy's with respect to the model files:
 
 2012-01-10 release.mod (not used in default model) updated to use derivimplicit in place of euler.
 
----
-
-2025-05-27 – Standardized to Markdown.
+2025-05-27 Standardized to Markdown.
